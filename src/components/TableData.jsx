@@ -149,7 +149,7 @@ const headCells = [
     label: "Passenger Count",
   },
   {
-    id: "airlane_name",
+    id: "airline_name",
     numeric: false,
     disablePadding: false,
     label: "Airline Name",
@@ -170,6 +170,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
+
 
   return (
     <TableHead>
@@ -218,7 +219,7 @@ function EnhancedTableHead(props) {
                 id="outlined-basic"
                 label={`${headCell.label}`}
                 variant="outlined"
-                style={{ width: "100%"}}
+                style={{ width: "100%" }}
                 size="small"
               />
             </Box>
@@ -257,16 +258,35 @@ function EnhancedTableToolbar(props) {
     >
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: "1 1 100%" }}
+          sx={{
+            flex: "1 1 100%",
+          }}
           color="inherit"
           variant="subtitle1"
           component="div"
         >
-          {numSelected} selected
+          <span
+            style={{
+              backgroundColor: "#3f51b5",
+              color: "#FFF",
+              borderRadius: "20px",
+              padding: "6px 16px", // More padding for a bold look
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)", // Subtle shadow
+              display: "inline-block", // Ensures proper spacing
+              marginRight: "12px", // A bit more space for a clean separation
+              fontSize: "14px", // Adjust font size
+              fontWeight: "600", // Bold font weight
+            }}
+          >
+            {numSelected}
+          </span>
+          {numSelected === 1 ? "item" : "items"} selected
         </Typography>
       ) : (
         <Typography
-          sx={{ flex: "1 1 100%" }}
+          sx={{
+            flex: "1 1 100%",
+          }}
           variant="h6"
           id="tableTitle"
           component="div"
@@ -318,11 +338,15 @@ export default function EnhancedTable() {
   });
 
   const handleSearchInputChange = (event, columnId) => {
-    const updatedSearchValues = {
-      ...searchValues,
-      [columnId]: event.target.value,
-    };
-    setSearchValues(updatedSearchValues);
+    try {
+      const updatedSearchValues = {
+        ...searchValues,
+        [columnId]: event.target.value,
+      };
+      setSearchValues(updatedSearchValues);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleRequestSort = (event, property) => {
@@ -333,7 +357,7 @@ export default function EnhancedTable() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = rows.map((n) => n.flight_number);
       setSelected(newSelected);
       return;
     }
@@ -373,7 +397,7 @@ export default function EnhancedTable() {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (name = "") => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -387,8 +411,8 @@ export default function EnhancedTable() {
             if (!searchValues[columnId]) {
               return true;
             }
-            const cellValue = row[columnId].toString().toLowerCase();
-            return cellValue.includes(searchValues[columnId].toLowerCase());
+            const cellValue = row[columnId]?.toString().toLowerCase();
+            return cellValue?.includes(searchValues[columnId].toLowerCase());
           });
         })
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
@@ -401,7 +425,42 @@ export default function EnhancedTable() {
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
-            sx={{ minWidth: 750 }}
+            sx={{
+              minWidth: 750,
+              borderCollapse: "collapse",
+              border: "1px solid rgba(224, 224, 224, 1)",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+              borderRadius: "8px",
+              overflow: "hidden",
+              transition: "box-shadow 0.3s, border 0.3s",
+
+              "&:hover": {
+                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                border: "1px solid rgba(200, 200, 200, 1)",
+              },
+
+              "& thead": {
+                backgroundColor: "#f5f5f5",
+                fontWeight: "bold",
+              },
+
+              "& th, & td": {
+                padding: "12px",
+                textAlign: "left",
+              },
+
+              "& th": {
+                borderBottom: "1px solid rgba(200, 200, 200, 1)",
+              },
+
+              "& tbody tr": {
+                transition: "background 0.3s",
+              },
+
+              "& tbody tr:hover": {
+                background: "#f2f2f2",
+              },
+            }}
             aria-labelledby="tableTitle"
             size={dense ? "small" : "medium"}
           >
@@ -412,12 +471,12 @@ export default function EnhancedTable() {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
-              searchValues={searchValues} // Pass the searchValues prop
-              onSearchInputChange={handleSearchInputChange} // Pass the handleSearchInputChange prop
+              searchValues={searchValues}
+              onSearchInputChange={handleSearchInputChange}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.name);
+                const isItemSelected = isSelected(row.flight_number);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
@@ -428,8 +487,21 @@ export default function EnhancedTable() {
                     aria-checked={isItemSelected}
                     tabIndex={-1}
                     key={row.flight_number}
-                    selected={isItemSelected}
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor: "pointer",
+                      transition:
+                        "background 0.3s, box-shadow 0.3s, color 0.3s",
+
+                      "&:hover": {
+                        background: "#f2f2f2",
+                        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.3)",
+
+                        "& .MuiTableCell-root": {
+                          color: "#000",
+                          transition: "color 0.3s",
+                        },
+                      },
+                    }}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
