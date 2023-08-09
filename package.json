@@ -1,7 +1,6 @@
 {
   "name": "interview",
   "version": "0.1.0",
-  "homepage": "https://Sayak04.github.io/opti-interview",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.1",
